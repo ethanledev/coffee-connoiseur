@@ -23,7 +23,7 @@
   color: var(--text-purple);
 }
 
-.subTitle {
+.subtitle {
   margin-top: 0.75rem;
   font-size: 1.5rem /* 24px */;
   line-height: 2rem /* 32px */;
@@ -36,7 +36,7 @@
 }
 
 .button {
-  background-color: var(--text-purple-dark);
+  background-color: var(--text-purple);
   cursor: pointer;
   color: white;
   outline: 0;
