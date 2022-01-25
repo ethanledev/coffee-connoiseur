@@ -2,6 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import Banner from "../components/banner";
+import Card from "../components/card";
 
 const Home = () => {
   const handleOnBannerBtnClick = () => {
@@ -27,6 +28,26 @@ const Home = () => {
             alt="Background image"
             width={700}
             height={400}
+          />
+        </div>
+        <div className={styles.cardLayout}>
+          <Card
+            className={styles.card}
+            name="Dark Horse Coffee"
+            href="/coffee-store/darkhorse-coffee"
+            imgUrl="/static/hero-image.png"
+          />
+          <Card
+            className={styles.card}
+            name="Dark Horse Coffee"
+            href="/coffee-store/darkhorse-coffee"
+            imgUrl="/static/hero-image.png"
+          />
+          <Card
+            className={styles.card}
+            name="Dark Horse Coffee"
+            href="/coffee-store/darkhorse-coffee"
+            imgUrl="/static/hero-image.png"
           />
         </div>
       </main>
