@@ -3,17 +3,32 @@ import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import Banner from "../components/banner";
 import Card from "../components/card";
-import coffeeStoresData from "../data/coffee-stores.json";
+import { fetchCoffeeStores } from "../lib/coffee-stores";
 
 export const getStaticProps = async (context) => {
+  const coffeeStores = await fetchCoffeeStores();
   return {
-    props: { coffeeStores: coffeeStoresData },
+    props: { coffeeStores },
   };
 };
 
 const Home = ({ coffeeStores }) => {
   const handleOnBannerBtnClick = () => {
     console.log("hi banner button");
+  };
+
+  const generateCoffeeStoreCards = () => {
+    return coffeeStores.map((coffeeStore) => (
+      <Card
+        key={`${coffeeStore.id}`}
+        name={coffeeStore.name}
+        imgUrl={
+          coffeeStore.imgUrl ||
+          "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"
+        }
+        href={`/coffee-store/${coffeeStore.id}`}
+      />
+    ));
   };
 
   return (
@@ -38,19 +53,12 @@ const Home = ({ coffeeStores }) => {
           />
         </div>
         {coffeeStores.length > 0 && (
-          <>
+          <div>
             <h2 className={styles.heading2}>Toronto stores</h2>
             <div className={styles.cardLayout}>
-              {coffeeStores.map((coffeeStore) => (
-                <Card
-                  key={`coffee_store_${coffeeStore.id}`}
-                  name={coffeeStore.name}
-                  imgUrl={coffeeStore.imgUrl}
-                  href={`/coffee-store/${coffeeStore.id}`}
-                />
-              ))}
+              {generateCoffeeStoreCards()}
             </div>
-          </>
+          </div>
         )}
       </main>
     </div>

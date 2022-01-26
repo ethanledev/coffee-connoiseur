@@ -3,20 +3,23 @@ import Link from "next/link";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../../styles/coffee-store.module.css";
-import coffeeStoresData from "../../data/coffee-stores.json";
+import { fetchCoffeeStores } from "../../lib/coffee-stores";
 
-export const getStaticProps = ({ params }) => {
+export const getStaticProps = async ({ params }) => {
+  const coffeeStores = await fetchCoffeeStores();
+
   return {
     props: {
-      coffeeStore: coffeeStoresData.find(
+      coffeeStore: coffeeStores.find(
         (coffeeStore) => coffeeStore.id.toString() === params.id
       ),
     },
   };
 };
 
-export const getStaticPaths = () => {
-  const paths = coffeeStoresData.map((coffeeStore) => ({
+export const getStaticPaths = async () => {
+  const coffeeStores = await fetchCoffeeStores();
+  const paths = coffeeStores.map((coffeeStore) => ({
     params: { id: coffeeStore.id.toString() },
   }));
 
@@ -72,15 +75,17 @@ const CoffeeStore = ({ coffeeStore }) => {
             />
             <p className={styles.text}>{address}</p>
           </div>
-          <div className={styles.iconWrapper}>
-            <Image
-              src="/static/icons/nearMe.svg"
-              width={24}
-              height={24}
-              alt="neighbourhood icon"
-            />
-            <p className={styles.text}>{neighbourhood}</p>
-          </div>
+          {neighbourhood && (
+            <div className={styles.iconWrapper}>
+              <Image
+                src="/static/icons/nearMe.svg"
+                width={24}
+                height={24}
+                alt="neighbourhood icon"
+              />
+              <p className={styles.text}>{neighbourhood}</p>
+            </div>
+          )}
           <div className={styles.iconWrapper}>
             <Image
               src="/static/icons/star.svg"
