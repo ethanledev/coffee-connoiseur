@@ -5,7 +5,8 @@ import Banner from "../components/banner";
 import Card from "../components/card";
 import { fetchCoffeeStores } from "../lib/coffee-stores";
 import useTrackLocation from "../hooks/use-track-location";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { ACTION_TYPES, StoreContext } from "../store/store-context";
 
 export const getStaticProps = async (context) => {
   const staticCoffeeStores = await fetchCoffeeStores();
@@ -15,9 +16,10 @@ export const getStaticProps = async (context) => {
 };
 
 const Home = ({ staticCoffeeStores }) => {
-  const [nearbyCoffeeStores, setNearbyCoffeeStores] = useState([]);
-  const { handleTrackLocation, latLong, locationErrorMsg, isFindingLocation } =
+  const { handleTrackLocation, locationErrorMsg, isFindingLocation } =
     useTrackLocation();
+  const { dispatch, state } = useContext(StoreContext);
+  const { latLong, nearByCoffeeStores } = state;
 
   useEffect(() => {
     async function fetchNearbyCoffeeStores() {
@@ -28,7 +30,10 @@ const Home = ({ staticCoffeeStores }) => {
             30,
             true
           );
-          setNearbyCoffeeStores(fetchedCoffeeStores);
+          dispatch({
+            type: ACTION_TYPES.SET_NEARBY_COFFEE_STORES,
+            payload: { nearByCoffeeStores: fetchedCoffeeStores },
+          });
         } catch (error) {
           console.log(error);
         }
@@ -36,7 +41,7 @@ const Home = ({ staticCoffeeStores }) => {
     }
 
     fetchNearbyCoffeeStores();
-  }, [latLong]);
+  }, [latLong, dispatch]);
 
   const handleOnBannerBtnClick = () => {
     handleTrackLocation();
@@ -80,11 +85,11 @@ const Home = ({ staticCoffeeStores }) => {
             height={400}
           />
         </div>
-        {nearbyCoffeeStores.length > 0 && (
+        {nearByCoffeeStores.length > 0 && (
           <div>
             <h2 className={styles.heading2}>Stores near me</h2>
             <div className={styles.cardLayout}>
-              {generateCoffeeStoreCards(nearbyCoffeeStores)}
+              {generateCoffeeStoreCards(nearByCoffeeStores)}
             </div>
           </div>
         )}

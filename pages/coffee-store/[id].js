@@ -4,15 +4,18 @@ import Head from "next/head";
 import Image from "next/image";
 import styles from "../../styles/coffee-store.module.css";
 import { fetchCoffeeStores } from "../../lib/coffee-stores";
+import { StoreContext } from "../../store/store-context";
+import { useEffect, useState, useContext } from "react";
+import { isEmpty } from "../../utils";
 
 export const getStaticProps = async ({ params }) => {
   const coffeeStores = await fetchCoffeeStores();
-
+  const coffeeStoreFoundById = coffeeStores.find((coffeeStore) => {
+    return coffeeStore.id.toString() === params.id;
+  });
   return {
     props: {
-      coffeeStore: coffeeStores.find(
-        (coffeeStore) => coffeeStore.id.toString() === params.id
-      ),
+      coffeeStore: coffeeStoreFoundById ? coffeeStoreFoundById : {},
     },
   };
 };
@@ -25,14 +28,35 @@ export const getStaticPaths = async () => {
 
   return {
     paths,
-    fallback: false,
+    fallback: true,
   };
 };
 
-const CoffeeStore = ({ coffeeStore }) => {
+const CoffeeStore = (initialProps) => {
   const router = useRouter();
 
-  if (router.isFallback) return <div>Loading...</div>;
+  const id = router.query.id;
+
+  const [coffeeStore, setCoffeeStore] = useState(initialProps);
+
+  const {
+    state: { nearByCoffeeStores },
+  } = useContext(StoreContext);
+
+  useEffect(() => {
+    if (isEmpty(initialProps.coffeeStore)) {
+      if (nearByCoffeeStores.length > 0) {
+        const coffeeStoreFoundById = nearByCoffeeStores.find((coffeeStore) => {
+          return coffeeStore.id.toString() === id;
+        });
+        setCoffeeStore(coffeeStoreFoundById);
+      }
+    }
+  }, [initialProps, nearByCoffeeStores, id]);
+
+  if (router.isFallback) {
+    return <div>Loading...</div>;
+  }
 
   const { name, address, neighbourhood, imgUrl } = coffeeStore;
 
@@ -57,7 +81,10 @@ const CoffeeStore = ({ coffeeStore }) => {
           </div>
           <div className={styles.storeImgWrapper}>
             <Image
-              src={imgUrl}
+              src={
+                imgUrl ||
+                "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"
+              }
               width={600}
               height={360}
               className={styles.storeImg}
