@@ -4,20 +4,45 @@ import styles from "../styles/Home.module.css";
 import Banner from "../components/banner";
 import Card from "../components/card";
 import { fetchCoffeeStores } from "../lib/coffee-stores";
+import useTrackLocation from "../hooks/use-track-location";
+import { useEffect, useState } from "react";
 
 export const getStaticProps = async (context) => {
-  const coffeeStores = await fetchCoffeeStores();
+  const staticCoffeeStores = await fetchCoffeeStores();
   return {
-    props: { coffeeStores },
+    props: { staticCoffeeStores },
   };
 };
 
-const Home = ({ coffeeStores }) => {
+const Home = ({ staticCoffeeStores }) => {
+  const [nearbyCoffeeStores, setNearbyCoffeeStores] = useState([]);
+  const { handleTrackLocation, latLong, locationErrorMsg, isFindingLocation } =
+    useTrackLocation();
+
+  useEffect(() => {
+    async function fetchNearbyCoffeeStores() {
+      if (latLong) {
+        try {
+          const fetchedCoffeeStores = await fetchCoffeeStores(
+            latLong,
+            30,
+            true
+          );
+          setNearbyCoffeeStores(fetchedCoffeeStores);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }
+
+    fetchNearbyCoffeeStores();
+  }, [latLong]);
+
   const handleOnBannerBtnClick = () => {
-    console.log("hi banner button");
+    handleTrackLocation();
   };
 
-  const generateCoffeeStoreCards = () => {
+  const generateCoffeeStoreCards = (coffeeStores) => {
     return coffeeStores.map((coffeeStore) => (
       <Card
         key={`${coffeeStore.id}`}
@@ -41,9 +66,12 @@ const Home = ({ coffeeStores }) => {
 
       <main className={styles.main}>
         <Banner
-          buttonText="View stores nearby"
+          buttonText={isFindingLocation ? "Locating..." : "View stores nearby"}
           handleOnClick={handleOnBannerBtnClick}
         />
+        {locationErrorMsg.length > 0 ? (
+          <p>Something went wrong: {locationErrorMsg}</p>
+        ) : null}
         <div className={styles.heroImage}>
           <Image
             src="/static/hero-image.png"
@@ -52,11 +80,19 @@ const Home = ({ coffeeStores }) => {
             height={400}
           />
         </div>
-        {coffeeStores.length > 0 && (
+        {nearbyCoffeeStores.length > 0 && (
+          <div>
+            <h2 className={styles.heading2}>Stores near me</h2>
+            <div className={styles.cardLayout}>
+              {generateCoffeeStoreCards(nearbyCoffeeStores)}
+            </div>
+          </div>
+        )}
+        {staticCoffeeStores.length > 0 && (
           <div>
             <h2 className={styles.heading2}>Toronto stores</h2>
             <div className={styles.cardLayout}>
-              {generateCoffeeStoreCards()}
+              {generateCoffeeStoreCards(staticCoffeeStores)}
             </div>
           </div>
         )}
