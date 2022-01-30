@@ -49,7 +49,7 @@ const CoffeeStore = ({ coffeeStore }) => {
         <div className={styles.col1}>
           <div className={styles.backToHomeLink}>
             <Link href="/">
-              <a>Back to home</a>
+              <a>&larr; Back to home</a>
             </Link>
           </div>
           <div className={styles.nameWrapper}>
