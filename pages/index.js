@@ -5,7 +5,7 @@ import Banner from "../components/banner";
 import Card from "../components/card";
 import { fetchCoffeeStores } from "../lib/coffee-stores";
 import useTrackLocation from "../hooks/use-track-location";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { ACTION_TYPES, StoreContext } from "../store/store-context";
 
 export const getStaticProps = async (context) => {
@@ -25,11 +25,11 @@ const Home = ({ staticCoffeeStores }) => {
     async function fetchNearbyCoffeeStores() {
       if (latLong) {
         try {
-          const fetchedCoffeeStores = await fetchCoffeeStores(
-            latLong,
-            30,
-            true
+          // get coffee stores near by
+          const response = await fetch(
+            `/api/getCoffeeStoresByLocation?latLong=${latLong}&limit=30&isNearBy=true`
           );
+          const fetchedCoffeeStores = await response.json();
           dispatch({
             type: ACTION_TYPES.SET_NEARBY_COFFEE_STORES,
             payload: { nearByCoffeeStores: fetchedCoffeeStores },
