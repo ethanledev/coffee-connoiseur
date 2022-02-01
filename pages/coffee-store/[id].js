@@ -58,7 +58,9 @@ const CoffeeStore = (initialProps) => {
     return <div>Loading...</div>;
   }
 
-  const { name, address, neighbourhood, imgUrl } = coffeeStore;
+  const { name, address, neighbourhood, imgUrl } = coffeeStore
+    ? coffeeStore
+    : {};
 
   const handleUpvoteButton = () => {
     console.log("handle upvote");
